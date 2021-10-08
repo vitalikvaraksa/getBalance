@@ -1,13 +1,15 @@
 const TOKENS = [
-    {
-        PAIR: "FLR_USDT",
-        NETS: [{
-            URL: "https://www.bitrue.com/kline-api/publicUSDT.json?command=returnTicker",
-            TYPE: "obj-arr"
-        }]
-    },
+    // {
+    //     PAIR: "FLR_USDT",
+    //     SYMBOL: "FLR",
+    //     NETS: [{
+    //         URL: "https://www.bitrue.com/kline-api/publicUSDT.json?command=returnTicker",
+    //         TYPE: "obj-arr"
+    //     }]
+    // },
     {
         PAIR: "XRP_USDT",
+        SYMBOL: "XRP",
         NETS: [{
             URL: "https://www.bitrue.com/kline-api/publicUSDT.json?command=returnTicker",
             TYPE: "obj-arr"
@@ -35,6 +37,7 @@ const TOKENS = [
     },
     {
         PAIR: "LTC_USDT",
+        SYMBOL: "LTC",
         NETS: [{
             URL: "https://www.bitrue.com/kline-api/publicUSDT.json?command=returnTicker",
             TYPE: "obj-arr"
@@ -70,6 +73,7 @@ const TOKENS = [
     },
     {
         PAIR: "DOGE_USDT",
+        SYMBOL: "DOGE",
         NETS: [{
             URL: "https://www.bitrue.com/kline-api/publicUSDT.json?command=returnTicker",
             TYPE: "obj-arr"
@@ -101,6 +105,7 @@ const TOKENS = [
     },
     {
         PAIR: "XLM_USDT",
+        SYMBOL: "XLM",
         NETS: [{
             URL: "https://www.bitrue.com/kline-api/publicUSDT.json?command=returnTicker",
             TYPE: "obj-arr"
