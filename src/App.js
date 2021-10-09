@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import { promisify } from 'util';
 import Web3 from 'web3';
 import { time, expectEvent } from '@openzeppelin/test-helpers';
 import { ethers } from 'ethers';
@@ -16,12 +17,8 @@ function App() {
 	const ftsoRegistryContract = new web3.eth.Contract(ftsoRegistryContractAbi, ftsoRegistryContractAddr);
 	const priceProviderAccount = web3.eth.accounts.privateKeyToAccount(priceProviderPrivateKey);
 
-	console.log(priceSubmitterContract);
-	console.log(ftsoRegistryContract)
-
 	useEffect(async () => {
 		const newBalance = await getBalanecs();
-		console.log(newBalance)
 		setBalances(newBalance);
 	}, []);
 
@@ -39,17 +36,14 @@ function App() {
 		const ftsoIndices = await Promise.all(
 			symbols.map(async sym => (await ftsoRegistryContract.methods.getFtsoIndex(sym).call() * 1)));
 
-		console.log(ftsos)
-
 		const {
 			0: firstEpochStartTimeBN,
 			1: submitPeriodBN,
 			2: revealPeriodBN,
-		} = (await ftsos[0].methods.getPriceEpochConfiguration());
-	
+		} = (await ftsos[0].methods.getPriceEpochConfiguration().call());
+		
 		const [firstEpochStartTime, submitPeriod, revealPeriod] = 
 			[firstEpochStartTimeBN, submitPeriodBN, revealPeriodBN].map(x => x * 1);
-	
 		// Sync time to start on next full transaction id
 		// For a real setting, make sure that computer time is synced with a reliable time provider
 		// Take blockchain time
@@ -64,20 +58,19 @@ function App() {
 		let currentEpoch = startingEpoch;
 		while(true){
 			// Force hardhat to mine a new block which will have an updated timestamp. if we don't hardhat timestamp will not update.
-			time.advanceBlock();
+			advanceBlock();
 			console.log("Start submit for epoch: ", currentEpoch); 
 			// Prepare prices and randoms
 			const randoms = symbols.map(sym => getRandom(currentEpoch, sym)); 
 			// Just a mock here, real price should not be random
 			const hashes = balances.map((p, i) => 
-				submitPriceHash(p, randoms[i], priceProviderAccount.address)
+				submitPriceHash(p.BALANCE, randoms[i], priceProviderAccount.address)
 			);
-			console.log("Prices: ", balances);
-			console.log("Randoms: ", randoms);
+			console.log(currentEpoch, ftsoIndices, hashes, priceProviderAccount.address)
 			// Submit price, on everything
 			const submission = await priceSubmitterContract.methods.submitPriceHashes(currentEpoch, 
-				ftsoIndices, hashes, {from: priceProviderAccount.address}
-			).call();
+				ftsoIndices, hashes).send({from: priceProviderAccount.address});
+			console.log("sub", submission)
 			expectEvent(submission, "PriceHashesSubmitted", { ftsos: ftsoAddresses, 
 				epochId: currentEpoch.toString(), hashes: hashes});
 	
@@ -91,7 +84,7 @@ function App() {
 			clearTimeout();
 			
 			// Reval prices
-			time.advanceBlock();
+			advanceBlock();
 			const reveal = await priceSubmitterContract.methods.revealPrices(currentEpoch - 1, ftsoIndices, balances, randoms, {from: priceProviderAccount.address}).call();
 			await expectEvent(reveal, "PricesRevealed", { ftsos: ftsoAddresses,
 				epochId: (currentEpoch - 1).toString(), prices: balances.map(x => toBN(x)) });
@@ -101,16 +94,24 @@ function App() {
 		}
 	}, [balances]);
 
+	const advanceBlock = () => promisify(web3.currentProvider.send.bind(web3.currentProvider))({
+		jsonrpc: '2.0',
+		method: 'evm_mine',
+		id: new Date().getTime(),
+	});
+
 	const getTime = async () => {
-		await time.advanceBlock();
-		const blockNum = await ethers.provider.getBlockNumber();
-		const block = await ethers.provider.getBlock(blockNum);
+		await advanceBlock();
+		const blockNum = await web3.eth.getBlockNumber();
+		const block = await web3.eth.getBlock(blockNum);
 		const timestamp = block.timestamp;
 		return timestamp;
 	}
 
 	const submitPriceHash = (price, random, address) => {
-		return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode([ "uint256", "uint256", "address" ], [ price.toString(), random.toString(), address]))
+		// return web3.utils.keccak256(web3.eth.abi.encodeParameters([ "uint256", "uint256", "address" ], [ price.toString(), random.toString(), address]))
+		return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode([ "uint256", "uint256", "address" ], [  web3.utils.toWei(price.toString(), 'ether'), web3.utils.toWei(random.toString(), 'ether'), address]))
+		return "0x1234567890";
 	}
 
 	function getRandom(epochId, asset) {
@@ -142,6 +143,51 @@ function App() {
 						case "array":
 							const filterData = data.filter(e => e.currency_pair === token.PAIR)
 							return filterBalanceData(filterData[0]);
+						case "book":
+							return data.asks[0][0] * 1;
+						case "order_book":
+							return data.asks[0][0] * 1;
+						case "kraken":
+							return data.result[token.JOIN_NAME].p[1];
+						case "bittrex":
+							return data.askRate;
+						case "crypto":
+							return data.result.data.a;
+						case "zb":
+							return data.ticker.last;
+						case "okex":
+							return data.last;
+						case "ascendex":
+							return data.data.bid[0];
+						case "blockchain":
+							return data.price_24h;
+						case "exmo":
+							return data[token.PAIR].last_trade;
+						case "trade":
+							return data.symbol.last_price;
+						case "bitmart":
+							return data.data.tickers[0].last_price;
+						case "latoken":
+							return data.lastPrice;
+						case "kline":
+							return data.datas[1];
+						case "bibox":
+							return data.result.last;
+						case "decoin":
+							return data[0].LastPrice;
+						case "mexc":
+							return data.data[0].last * 1;
+						case "big":
+							return data.data.bid.price;
+						case "vcc":
+							return data.data[token.PAIR].last_price;
+						case "liquid":
+							return data.last_price_24h;
+						case "gokumarket":
+							 return data.data.currentPrice;
+						case "stormgain":
+							const filter = data.filter(e => e.ticker_id === token.PAIR)
+							return filter[0].last_price;
 						default:
 							return filterBalanceData(data);
 					}
@@ -151,7 +197,6 @@ function App() {
 			}));
 
 			let allBalance = 0;
-			console.log(token.PAIR, tokenBalanceArray)
 			tokenBalanceArray.forEach(tokenBalance => {
 				allBalance += tokenBalance * 1;
 			});
