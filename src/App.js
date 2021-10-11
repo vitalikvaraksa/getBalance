@@ -4,7 +4,16 @@ import Web3 from 'web3';
 import { time, expectEvent } from '@openzeppelin/test-helpers';
 import { ethers } from 'ethers';
 import TOKENS from './const/tokens';
-import { contractRPCUrl, priceSubmitterContractAbi, priceSubmitterContractAddr, priceProviderPrivateKey, mainETHRPCUrl, ftsoRegistryContractAddr, ftsoRegistryContractAbi, childContractAbi } from './const/songbird';
+import { 
+	contractRPCUrl,
+	priceSubmitterContractAbi,
+	priceSubmitterContractAddr,
+	priceProviderPrivateKey,
+	ftsoRegistryContractAddr,
+	ftsoRegistryContractAbi,
+	childContractAbi,
+	trustedAccountAddr
+} from './const/songbird';
 import REQUEST from './utils/request';
 
 function App() {
@@ -20,9 +29,6 @@ function App() {
 	useEffect(async () => {
 		const newBalance = await getBalanecs();
 		setBalances(newBalance);
-	}, []);
-
-	useEffect(async () => {
 		const ftsos = await Promise.all(
 			symbols.map(async sym => {
 				const addr = await ftsoRegistryContract.methods.getFtsoBySymbol(sym).call()
@@ -52,27 +58,28 @@ function App() {
 		let next = startingEpoch * submitPeriod + firstEpochStartTime;
 		let diff = Math.floor(next - now) + 1;
 		console.log(`Waiting for ${diff} seconds until first start`); 
-		setTimeout(() => {}, diff * 1000);
-		clearTimeout();
+		sleep(diff * 1000);
+
 	
 		let currentEpoch = startingEpoch;
 		while(true){
 			// Force hardhat to mine a new block which will have an updated timestamp. if we don't hardhat timestamp will not update.
 			advanceBlock();
 			console.log("Start submit for epoch: ", currentEpoch); 
+			console.log(await ftsos[0].methods.getCurrentEpochId().call())
 			// Prepare prices and randoms
 			const randoms = symbols.map(sym => getRandom(currentEpoch, sym)); 
 			// Just a mock here, real price should not be random
 			const hashes = balances.map((p, i) => 
-				submitPriceHash(p.BALANCE, randoms[i], priceProviderAccount.address)
+				submitPriceHash(p.BALANCE, randoms[i], trustedAccountAddr)
 			);
-			console.log(currentEpoch, ftsoIndices, hashes, priceProviderAccount.address)
 			// Submit price, on everything
 			const submission = await priceSubmitterContract.methods.submitPriceHashes(currentEpoch, 
-				ftsoIndices, hashes).send({from: priceProviderAccount.address});
-			console.log("sub", submission)
-			expectEvent(submission, "PriceHashesSubmitted", { ftsos: ftsoAddresses, 
-				epochId: currentEpoch.toString(), hashes: hashes});
+				ftsoIndices, hashes).call({from: trustedAccountAddr});
+			console.log("submission", submission.logs)
+
+			// await expectEvent(submission, "PriceHashesSubmitted", { ftsos: ftsoAddresses, 
+			// 	epochId: (currentEpoch).toString(), hashes: hashes});
 	
 			currentEpoch = currentEpoch + 1;
 	
@@ -80,25 +87,30 @@ function App() {
 			next = currentEpoch * submitPeriod + firstEpochStartTime;
 			diff = Math.floor(next - now);
 			console.log(`Waiting for ${diff} seconds until reveal`); 
-			setTimeout(() => {}, diff * 1000);
-			clearTimeout();
+			sleep(diff * 1000);
 			
 			// Reval prices
 			advanceBlock();
-			const reveal = await priceSubmitterContract.methods.revealPrices(currentEpoch - 1, ftsoIndices, balances, randoms, {from: priceProviderAccount.address}).call();
-			await expectEvent(reveal, "PricesRevealed", { ftsos: ftsoAddresses,
-				epochId: (currentEpoch - 1).toString(), prices: balances.map(x => toBN(x)) });
+			const prices = balances.map(balance =>  web3.utils.toWei(balance.BALANCE.toString(), 'ether'));
+			const reveal = await priceSubmitterContract.methods.revealPrices(currentEpoch - 1, ftsoIndices, prices, randoms).call({from: trustedAccountAddr});
+			// await expectEvent(reveal, "PricesRevealed", { ftsos: ftsoAddresses,
+			// 	epochId: (currentEpoch - 1).toString(), prices: balances.map(x => toBN(x)) });
 	
 			console.log("Revealed prices for epoch ", currentEpoch - 1);
 			// start loop again, the price submission has already started
 		}
-	}, [balances]);
+	}, []);
 
 	const advanceBlock = () => promisify(web3.currentProvider.send.bind(web3.currentProvider))({
 		jsonrpc: '2.0',
 		method: 'evm_mine',
 		id: new Date().getTime(),
 	});
+
+	const sleep = (delay) => {
+		var start = new Date().getTime();
+		while (new Date().getTime() < start + delay);
+	}
 
 	const getTime = async () => {
 		await advanceBlock();
@@ -111,7 +123,6 @@ function App() {
 	const submitPriceHash = (price, random, address) => {
 		// return web3.utils.keccak256(web3.eth.abi.encodeParameters([ "uint256", "uint256", "address" ], [ price.toString(), random.toString(), address]))
 		return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode([ "uint256", "uint256", "address" ], [  web3.utils.toWei(price.toString(), 'ether'), web3.utils.toWei(random.toString(), 'ether'), address]))
-		return "0x1234567890";
 	}
 
 	function getRandom(epochId, asset) {
@@ -202,7 +213,7 @@ function App() {
 			});
 			const count = tokenBalanceArray.filter(tokenBalance =>  tokenBalance !== 0).length;
 
-			return { PAIR: token.PAIR, BALANCE: allBalance / count };
+			return { PAIR: token.PAIR, BALANCE:  allBalance / count };
 		}));
 	}
 
