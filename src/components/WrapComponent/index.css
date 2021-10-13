@@ -1,0 +1,61 @@
+.wrap-token {
+    margin: 20px;
+    border-radius: 15px;
+    padding: 16px;
+    background-color: #eee;
+    display: flex;
+    justify-content: center;
+}
+
+.switch-wrap {
+    margin: 8px 16px;
+    padding: 8px;
+}
+
+.switch-wrap-btn {
+    cursor: pointer;
+    color: #aaa;
+}
+
+.switch-wrap-btn.selected {
+    color: black;
+}
+
+.operate-section {
+    width: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+.wrap-from, .wrap-to {
+    background-color: white;
+    margin: 8px 16px;
+    padding: 16px;
+    border-radius: 16px;
+}
+
+.name-value {
+    font-size: 24px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.balance {
+    color: #aaa;
+}
+
+.input-value {
+    flex: 1;
+    text-align: right;
+    font-size: 24px;
+    border: none;
+}
+
+.input-value:focus-visible {
+    outline: none;
+}
+
+.wrap-btn {
+    margin: 8px 16px;
+    padding: 6px;
+}

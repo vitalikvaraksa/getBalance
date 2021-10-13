@@ -1,0 +1,4 @@
+.price-table table tr th, .price-table table tr td {
+    padding: 5px 10px;
+    text-align: center;
+}
