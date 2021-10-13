@@ -18,7 +18,7 @@ function App() {
 				</Header>
 				<Content className="content" >
 					<div className="site-layout-content">
-						<Tabs type="card">
+						<Tabs className="tab-container" type="card">
 							<TabPane tab="Price Balances" key={1}>
 								<RewardListComponent />
 							</TabPane>

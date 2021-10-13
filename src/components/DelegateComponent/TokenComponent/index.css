@@ -1,0 +1,38 @@
+.token-container-title {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.token-container-explain {
+    color: #aaa;
+}
+
+.select-token {
+    margin: 10px 0;
+    width: 50%;
+}
+
+.select-container {
+    display: flex;
+    align-items: center;
+}
+
+.selected-token-balance {
+    margin: 0 10px;
+}
+
+.info-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.delegation-info {
+    color: #aaa;
+}
+
+.gray-container {
+    background-color: #eee;
+    padding: 16px;
+    margin: 5px 0;
+    border-radius: 8px;
+}

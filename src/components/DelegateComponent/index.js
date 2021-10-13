@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Steps, Button, message, Divider } from 'antd';
+import TokenComponent from './TokenComponent';
+import ProvidersComponent from './ProvidersComponent';
 import './index.css';
 
 const { Step } = Steps;
@@ -17,11 +19,11 @@ const DelegateComponent = (props) => {
     const steps = [
         {
           title: 'Token',
-          content: 'Token-content',
+          content: <TokenComponent />,
         },
         {
           title: 'Providers',
-          content: 'Providers-content',
+          content: <ProvidersComponent />,
         },
         {
           title: 'Configure',

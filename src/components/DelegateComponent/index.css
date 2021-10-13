@@ -1,3 +1,11 @@
+.delegate-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
 .steps-content {
-    height: 200px;
+    flex: 1;
+    overflow: auto;
+    margin-bottom: 16px;
 }
