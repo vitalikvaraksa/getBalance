@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Tabs } from 'antd';
+import { Layout, Tabs, Button } from 'antd';
 import RewardListComponent from 'components/RewardListComponent';
 import WrapComponent from 'components/WrapComponent';
 import DelegateComponent from 'components/DelegateComponent';
@@ -13,8 +13,11 @@ function App() {
 	return (
 		<div className="App">
 			<Layout className="layout">
-				<Header className="header" >
-					<div className="logo">FTSO</div>
+				<Header>
+					<div className="header">
+						<div className="logo">FTSO</div>
+						<Button type="primary" shape="round">Connect Wallet</Button>
+					</div>
 				</Header>
 				<Content className="content" >
 					<div className="site-layout-content">
