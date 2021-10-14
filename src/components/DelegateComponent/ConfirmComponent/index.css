@@ -1,0 +1,13 @@
+.confirm-container {
+    font-size: 16px;
+}
+
+.confirm-container-title {
+    font-size: 24px;
+    font-weight: bold;
+    overflow: auto;
+}
+
+.confirm-text {
+    padding: 5px;
+}

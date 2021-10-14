@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Steps, Button, message, Divider } from 'antd';
 import TokenComponent from './TokenComponent';
 import ProvidersComponent from './ProvidersComponent';
+import ConfigureComponent from './ConfigureComponent';
+import ConfirmComponent from './ConfirmComponent';
+import CompleteComponent from './CompleteComponent';
 import './index.css';
 
 const { Step } = Steps;
@@ -27,15 +30,15 @@ const DelegateComponent = (props) => {
         },
         {
           title: 'Configure',
-          content: 'Configure-content',
+          content: <ConfigureComponent />,
         },
         {
           title: 'Confirm',
-          content: 'Confirm-content',
+          content: <ConfirmComponent />,
         },
         {
           title: 'Complete',
-          content: 'Complete-content',
+          content: <CompleteComponent />,
         },
       ];
 
