@@ -46,3 +46,8 @@
 	font-size: 20px;
 	font-weight: bold;
 }
+
+.connector-contetn {
+  display: flex;
+  align-items: center;
+}

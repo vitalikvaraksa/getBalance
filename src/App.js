@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Layout, Tabs, Button, Modal, Avatar, Spin, Card } from 'antd';
 import { Web3ReactProvider, useWeb3React, UnsupportedChainIdError } from '@web3-react/core';
 import { Web3Provider } from "@ethersproject/providers";
+import { ethers } from 'ethers';
 import { UserRejectedRequestError as UserRejectedRequestErrorWalletConnect } from '@web3-react/walletconnect-connector';
 import { NoEthereumProviderError, UserRejectedRequestError as UserRejectedRequestErrorInjected } from '@web3-react/injected-connector';
 import { UserRejectedRequestError as UserRejectedRequestErrorFrame } from '@web3-react/frame-connector';
@@ -11,7 +12,7 @@ import { injected } from 'utils/connector';
 import RewardListComponent from 'components/RewardListComponent';
 import WrapComponent from 'components/WrapComponent';
 import DelegateComponent from 'components/DelegateComponent';
-import { MetaMaskImage } from 'img';
+import { MetaMaskImage, DcentImage, LedgerImage, BifrostImage } from 'img';
 
 import 'antd/dist/antd.css';
 import './App.css';
@@ -21,6 +22,7 @@ const { TabPane } = Tabs;
 
 function App() {
     const { connector, library, chainId, account, deactivate, activate, error, active } = useWeb3React();
+	const provider = new ethers.providers.Web3Provider(window.ethereum);
 	const [activatingConnector, setActivatingConnector] = useState();
 	const [isModalVisible, setModalVisible] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
@@ -73,7 +75,7 @@ function App() {
 	}
 
 	return (
-		<AppContext.Provider value={{library, activate, account, chainId, deactivate, error}}>
+		<AppContext.Provider value={{library, activate, account, chainId, deactivate, error, active, provider}}>
 			<div className="App">
 				<Layout className="layout">
 					<Header>
@@ -105,9 +107,29 @@ function App() {
 				</Layout>
 				<Modal title="Sellect Wallet" visible={isModalVisible} onCancel={handleCancel} footer={false}>
 					<Spin spinning={isLoading && !(error instanceof NoEthereumProviderError)} tip="Loading..." >
-						<Card onClick={connectWallet} hoverable >
-							<Avatar shape="square" src={MetaMaskImage} /> 
-							<span className="metamask-title" >MetaMask</span>
+						<Card onClick={connectWallet} hoverable style={{marginBottom: '8px'}} >
+							<div className="connector-content">
+								<Avatar shape="square" src={MetaMaskImage} /> 
+								<span className="metamask-title" >MetaMask</span>
+							</div>
+						</Card>
+						<Card hoverable style={{marginBottom: '8px'}}>
+							<div className="connector-content">
+								<Avatar shape="square" src={DcentImage} /> 
+								<span className="metamask-title" >D'CENT</span>
+							</div>
+						</Card>
+						<Card hoverable style={{marginBottom: '8px'}}>
+							<div className="connector-content">
+								<Avatar shape="square" src={BifrostImage} /> 
+								<span className="metamask-title" >Bifrost</span>
+							</div>
+						</Card>
+						<Card hoverable style={{marginBottom: '8px'}}>
+							<div className="connector-content">
+								<Avatar shape="square" src={LedgerImage} /> 
+								<span className="metamask-title" >Ledger</span>
+							</div>
 						</Card>
 					</Spin>
 					{(error instanceof NoEthereumProviderError) && (
