@@ -9,6 +9,12 @@ import { UserRejectedRequestError as UserRejectedRequestErrorFrame } from '@web3
 import { AppContext } from 'utils/context';
 import { useEagerConnect, useInactiveListener } from 'utils/hook';
 import { injected } from 'utils/connector';
+import { 
+    getPriceSubmitterContract,
+    getFtsoManagerContract,
+    getFtsoRewardManagerContract,
+    getWNatContract
+} from 'const/ftsoContracts';
 import RewardListComponent from 'components/RewardListComponent';
 import WrapComponent from 'components/WrapComponent';
 import DelegateComponent from 'components/DelegateComponent';
@@ -22,11 +28,13 @@ const { TabPane } = Tabs;
 
 function App() {
     const { connector, library, chainId, account, deactivate, activate, error, active } = useWeb3React();
-	const provider = new ethers.providers.Web3Provider(window.ethereum);
 	const [activatingConnector, setActivatingConnector] = useState();
 	const [isModalVisible, setModalVisible] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [currentAccount, setCurrentAccount] = useState(account);
+	const [wNatContract, setWNatContract] = useState();
+	const provider = new ethers.providers.Web3Provider(window.ethereum);
+	const signer = provider.getSigner();
 	
 	useEffect(() => {
 		if (activatingConnector && activatingConnector === connector) {
@@ -38,7 +46,17 @@ function App() {
 		setIsLoading(false);
 		setCurrentAccount(account);
 		setModalVisible(false);
-	}, [connector])
+	}, [connector]);
+
+	useEffect(async () => {
+        if (account) {
+            const priceSubmitterContract = getPriceSubmitterContract(provider);
+            const ftsoManagerContract = getFtsoManagerContract(provider, await priceSubmitterContract.getFtsoManager());
+            const ftsoRewardManagerContract = getFtsoRewardManagerContract(signer, await ftsoManagerContract.rewardManager());
+            const contract = getWNatContract(signer, await ftsoRewardManagerContract.wNat());
+            setWNatContract(contract);
+        }
+    }, [account])
 
 
 	const triedEager = useEagerConnect();
@@ -75,7 +93,7 @@ function App() {
 	}
 
 	return (
-		<AppContext.Provider value={{library, activate, account, chainId, deactivate, error, active, provider}}>
+		<AppContext.Provider value={{library, activate, account, chainId, deactivate, error, active, provider, wNatContract, signer}}>
 			<div className="App">
 				<Layout className="layout">
 					<Header>

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Steps, Button, message, Divider } from 'antd';
+import React, { useState, useContext } from 'react';
+import { Steps, Button, message, Divider, notification } from 'antd';
+import { AppContext } from 'utils/context';
 import TokenComponent from './TokenComponent';
 import ProvidersComponent from './ProvidersComponent';
 import ConfigureComponent from './ConfigureComponent';
@@ -10,9 +11,16 @@ import './index.css';
 const { Step } = Steps;
 
 const DelegateComponent = (props) => {
+    const { wNatContract, signer, account} = useContext(AppContext);
     const [current, setCurrent] = useState(0);
+    const [providersArr, setProvidersArr] = useState([]);
+    const [totalProviders, setTotalProviders] = useState([]);
 
     const next = () => {
+        if (current === 1 && providersArr.length === 0) {
+            notification.info({message: "You must select least one provider!", duration: 5});
+            return;
+        }
         setCurrent(current + 1);
     };
 
@@ -22,23 +30,18 @@ const DelegateComponent = (props) => {
     const steps = [
         {
           title: 'Token',
-          content: <TokenComponent />,
         },
         {
           title: 'Providers',
-          content: <ProvidersComponent />,
         },
         {
           title: 'Configure',
-          content: <ConfigureComponent />,
         },
         {
           title: 'Confirm',
-          content: <ConfirmComponent />,
         },
         {
           title: 'Complete',
-          content: <CompleteComponent />,
         },
       ];
 
@@ -52,7 +55,13 @@ const DelegateComponent = (props) => {
                 }
             </Steps>
             <Divider />
-            <div className="steps-content">{steps[current].content}</div>
+            <div className="steps-content">
+                {current === 0 && <TokenComponent wNatContract={wNatContract} signer={signer} account={account} />}
+                {current === 1 && <ProvidersComponent setProvidersArr={setProvidersArr} providersArr={providersArr} totalProviders={totalProviders} setTotalProviders={setTotalProviders} />}
+                {current === 2 && <ConfigureComponent />}
+                {current === 3 && <ConfirmComponent />}
+                {current === 4 && <CompleteComponent />}
+            </div>
             <div className="steps-action">
                 {current > 0 && (
                 <Button style={{ margin: '0 8px' }} onClick={() => prev()}>

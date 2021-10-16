@@ -1,10 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
 import { Select, Divider } from 'antd';
 import './index.css';
 
 const { Option } = Select;
 
 const TokenComponent = (props) => {
+    const { wNatContract, signer, account } = props;
+    const [WSGBBalance, setWSGBBalance] = useState(0);
+
+    useEffect(async () => {
+        if (wNatContract) {
+            const wrappedBalance = await wNatContract.balanceOf(account);
+            setWSGBBalance(ethers.utils.formatEther(wrappedBalance));
+        }
+    }, [wNatContract])
+    
     return (
         <div className="token-container">
             <div className="token-container-title">Token</div>
@@ -19,7 +30,7 @@ const TokenComponent = (props) => {
                         <Option value="fxlm">FXLM</Option>
                         <Option value="fdoge">FDOGE</Option>
                     </Select>
-                    <div className="selected-token-balance">Balance: 0.00000</div>
+                    <div className="selected-token-balance">Balance: {parseFloat(WSGBBalance).toFixed(5)}</div>
                 </div>
                 <div className="info-container gray-container">
                     <span>Allocation Availave</span>

@@ -2,36 +2,18 @@ import React, {useState, useContext, useEffect} from 'react';
 import { ethers } from 'ethers';
 import { Button, Spin, notification, Avatar } from 'antd';
 import { AppContext } from 'utils/context';
-import { 
-    getPriceSubmitterContract,
-    getFtsoManagerContract,
-    getFtsoRewardManagerContract,
-    getWNatContract
-} from 'const/ftsoContracts';
 import { SGBImage, WSGBImage } from 'img';
 import './index.css';
 
 const WrapComponent = (props) => {
-    const { active, provider, account } = useContext(AppContext);
+    const { active, wNatContract, account, signer } = useContext(AppContext);
     const [wrapStatus, setWrapStatus] = useState(true);
     const [sgbBalance, setSgbBalance] = useState(0);
     const [wsgbBalance, setWsgbBalance] = useState(0);
     const [sgbValue, setSgbValue] = useState('');
     const [wsgbValue, setWsgbValue] = useState('');
-    const [wNatContract, setWNatContract] = useState();
     const [isLoading, setIsLoading] = useState(false);
-    const signer = provider.getSigner();
     
-    useEffect(async () => {
-        if (account) {
-            const priceSubmitterContract = getPriceSubmitterContract(provider);
-            const ftsoManagerContract = getFtsoManagerContract(provider, await priceSubmitterContract.getFtsoManager());
-            const ftsoRewardManagerContract = getFtsoRewardManagerContract(signer, await ftsoManagerContract.rewardManager());
-            const contract = getWNatContract(signer, await ftsoRewardManagerContract.wNat());
-            setWNatContract(contract);
-        }
-    }, [account])
-
     const getBalance = async () => {
         if (account && wNatContract) {
             const wrappedBalance = await wNatContract.balanceOf(account)
