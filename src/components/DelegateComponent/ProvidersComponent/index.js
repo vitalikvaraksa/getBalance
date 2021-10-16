@@ -7,7 +7,7 @@ import './index.css';
 const { Column } = Table;
 
 const ProvidersComponent = (props) => {
-    const { setProvidersArr, providersArr, totalProviders, setTotalProviders } = props;
+    const { setProvidersArr, providersArr, totalProviders, setTotalProviders, setAvailableNext } = props;
     const [providers, setProviders] = useState(totalProviders);
     const [providersLoading, setProvidersLoading] = useState(false);
     const [selectedProviders, setSelectedProviders] = useState(providersArr);
@@ -33,12 +33,14 @@ const ProvidersComponent = (props) => {
             const URL = 'https://app.ftso.com.au/action/get-ftso-providers';
             try {
                 setProvidersLoading(true);
+                setAvailableNext(true);
                 const response = await axios.get(URL);
                 const newProviders = response.data.message;
                 const newProvidersWithIndex = newProviders.map((provider, index) => ({...provider, key: index}))
                 setProviders(newProvidersWithIndex);
                 setTotalProviders(newProvidersWithIndex);
                 setProvidersLoading(false);
+                setAvailableNext(false);
             } catch (error) {
                 setProvidersLoading(false);
                 notification.error({message: 'Network Error', duration: 5});

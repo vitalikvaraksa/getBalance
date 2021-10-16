@@ -6,13 +6,14 @@ import './index.css';
 const { Option } = Select;
 
 const TokenComponent = (props) => {
-    const { wNatContract, signer, account } = props;
+    const { wNatContract, signer, account, setAvailableNext } = props;
     const [WSGBBalance, setWSGBBalance] = useState(0);
 
     useEffect(async () => {
         if (wNatContract) {
             const wrappedBalance = await wNatContract.balanceOf(account);
             setWSGBBalance(ethers.utils.formatEther(wrappedBalance));
+            setAvailableNext(false);
         }
     }, [wNatContract])
     

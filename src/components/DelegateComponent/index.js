@@ -17,19 +17,32 @@ const DelegateComponent = (props) => {
     const [totalProviders, setTotalProviders] = useState([]);
     const [delegateValues, setDelegateValues] = useState([50, 50]);
     const [confirmCheck, setConfirmCheck] = useState(false);
+    const [delegateStart, setDelegateStart] = useState(false);
+    const [availableNext, setAvailableNext] = useState(true);
+    const [doneDelegate, setDoneDelegate] = useState(false);
 
     const next = () => {
         if (current === 1 && providersArr.length === 0) {
             notification.info({message: "You must select least one provider!", duration: 5});
             return;
         }
-        setCurrent(current + 1);
+
+        if (current === 3) {
+            setDelegateStart(true);
+            setAvailableNext(false);
+        } else {
+            setCurrent(current + 1);
+        }
     };
 
     useEffect(() => {
         if (current === 3) setConfirmCheck(true);
         else setConfirmCheck(false)
-    }, [current])
+    }, [current]);
+
+    useEffect(() => {
+        doneDelegate && setCurrent(current + 1);
+    }, [doneDelegate])
 
     const prev = () => {
         setCurrent(current - 1);
@@ -63,10 +76,25 @@ const DelegateComponent = (props) => {
             </Steps>
             <Divider />
             <div className="steps-content">
-                {current === 0 && <TokenComponent wNatContract={wNatContract} signer={signer} account={account} />}
-                {current === 1 && <ProvidersComponent setProvidersArr={setProvidersArr} providersArr={providersArr} totalProviders={totalProviders} setTotalProviders={setTotalProviders} />}
+                {current === 0 && <TokenComponent 
+                                    wNatContract={wNatContract}
+                                    setAvailableNext={setAvailableNext}
+                                    signer={signer}
+                                    account={account} />}
+                {current === 1 && <ProvidersComponent 
+                                    setProvidersArr={setProvidersArr}
+                                    providersArr={providersArr} 
+                                    totalProviders={totalProviders}
+                                    setAvailableNext={setAvailableNext}
+                                    setTotalProviders={setTotalProviders} />}
                 {current === 2 && <ConfigureComponent providersArr={providersArr} delegateValues={delegateValues} setDelegateValues={setDelegateValues} />}
-                {current === 3 && <ConfirmComponent providersArr={providersArr} delegateValues={delegateValues} setConfirmCheck={setConfirmCheck} />}
+                {current === 3 && <ConfirmComponent 
+                                    providersArr={providersArr}
+                                    delegateValues={delegateValues}
+                                    setConfirmCheck={setConfirmCheck}
+                                    delegateStart={delegateStart}
+                                    setDoneDelegate={setDoneDelegate}
+                                    setAvailableNext={setAvailableNext} />}
                 {current === 4 && <CompleteComponent />}
             </div>
             <div className="steps-action">
@@ -76,7 +104,7 @@ const DelegateComponent = (props) => {
                 </Button>
                 )}
                 {current < steps.length - 1 && (
-                    <Button type="primary" onClick={() => next()} disabled={confirmCheck}>
+                    <Button type="primary" onClick={() => next()} disabled={confirmCheck || availableNext}>
                     Next
                 </Button>
                 )}
