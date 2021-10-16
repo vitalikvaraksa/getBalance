@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { notification } from 'antd';
+import { notification, Avatar } from 'antd';
 import axios from 'axios';
 import { Table, Checkbox } from 'antd';
 import './index.css';
@@ -50,7 +50,7 @@ const ProvidersComponent = (props) => {
         <div className="providers-container">
             <div className="providers-container-title">Choose Providers</div>
             <Table className="providers-table" dataSource={providers} loading={providersLoading}>
-                <Column key="name" title="Name" dataIndex="name" />
+                <Column key="name" title="Name" render={provider => <div><Avatar src={provider.emblem} />&nbsp;{provider.name}</div>} />
                 <Column key="website" title="Website" render={provider => <a href={provider.website_url} >{provider.website_url.split('//')[1]}</a>} />
                 <Column key="fee" title="Fee">20%</Column>
                 <Column key="check" render={(provider) => 

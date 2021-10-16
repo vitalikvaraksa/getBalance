@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Steps, Button, message, Divider, notification } from 'antd';
 import { AppContext } from 'utils/context';
 import TokenComponent from './TokenComponent';
@@ -15,6 +15,8 @@ const DelegateComponent = (props) => {
     const [current, setCurrent] = useState(0);
     const [providersArr, setProvidersArr] = useState([]);
     const [totalProviders, setTotalProviders] = useState([]);
+    const [delegateValues, setDelegateValues] = useState([50, 50]);
+    const [confirmCheck, setConfirmCheck] = useState(false);
 
     const next = () => {
         if (current === 1 && providersArr.length === 0) {
@@ -23,6 +25,11 @@ const DelegateComponent = (props) => {
         }
         setCurrent(current + 1);
     };
+
+    useEffect(() => {
+        if (current === 3) setConfirmCheck(true);
+        else setConfirmCheck(false)
+    }, [current])
 
     const prev = () => {
         setCurrent(current - 1);
@@ -58,8 +65,8 @@ const DelegateComponent = (props) => {
             <div className="steps-content">
                 {current === 0 && <TokenComponent wNatContract={wNatContract} signer={signer} account={account} />}
                 {current === 1 && <ProvidersComponent setProvidersArr={setProvidersArr} providersArr={providersArr} totalProviders={totalProviders} setTotalProviders={setTotalProviders} />}
-                {current === 2 && <ConfigureComponent />}
-                {current === 3 && <ConfirmComponent />}
+                {current === 2 && <ConfigureComponent providersArr={providersArr} delegateValues={delegateValues} setDelegateValues={setDelegateValues} />}
+                {current === 3 && <ConfirmComponent providersArr={providersArr} delegateValues={delegateValues} setConfirmCheck={setConfirmCheck} />}
                 {current === 4 && <CompleteComponent />}
             </div>
             <div className="steps-action">
@@ -69,7 +76,7 @@ const DelegateComponent = (props) => {
                 </Button>
                 )}
                 {current < steps.length - 1 && (
-                    <Button type="primary" onClick={() => next()}>
+                    <Button type="primary" onClick={() => next()} disabled={confirmCheck}>
                     Next
                 </Button>
                 )}
