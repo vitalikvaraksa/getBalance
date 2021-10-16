@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Row, Col, Avatar, notification } from 'antd';
 import './index.css';
 
@@ -21,6 +21,15 @@ const ConfigureComponent = (props) => {
         setTotalValue(newTotalValue);
         setDelegateValues(newValues)
     }
+
+    useEffect(() => {
+        let newTotalValue = 0;
+        delegateValues.map(value => {
+            newTotalValue += value * 1;
+        });
+
+        setTotalValue(newTotalValue);
+    }, [])
 
     return (
         <div className="configure-container">
