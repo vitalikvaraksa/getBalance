@@ -7,10 +7,11 @@ import './index.css';
 const { Column } = Table;
 
 const ProvidersComponent = (props) => {
-    const { setProvidersArr, providersArr, totalProviders, setTotalProviders, setAvailableNext } = props;
+    const { setProvidersArr, providersArr, totalProviders, setTotalProviders, setAvailableNext, pastDelegatesAddr } = props;
     const [providers, setProviders] = useState(totalProviders);
     const [providersLoading, setProvidersLoading] = useState(false);
     const [selectedProviders, setSelectedProviders] = useState(providersArr);
+    const [lowerPastDelegatesAddr, setLowerPastDelegateAddr] = useState([]);
 
     const handleProvider = (provider) => {
         let newSelectedProviders;
@@ -36,9 +37,16 @@ const ProvidersComponent = (props) => {
                 setAvailableNext(true);
                 const response = await axios.get(URL);
                 const newProviders = response.data.message;
-                const newProvidersWithIndex = newProviders.map((provider, index) => ({...provider, key: index}))
+                const newProvidersWithIndex = newProviders.filter(provider => provider.pools.length !== 0).map((provider, index) => ({...provider, key: index}));
+                console.log(newProvidersWithIndex)
+                const lowerPastDelegatesAddr = pastDelegatesAddr.map(address => address.toLowerCase());
+                setLowerPastDelegateAddr(lowerPastDelegatesAddr);
+                const newSelectedProviders = newProvidersWithIndex.filter(provider => provider.pools.filter(pool => lowerPastDelegatesAddr.indexOf(pool.address) > -1).length > 0);
+                console.log(newSelectedProviders);
                 setProviders(newProvidersWithIndex);
                 setTotalProviders(newProvidersWithIndex);
+                setSelectedProviders(newSelectedProviders);
+                setProvidersArr(newSelectedProviders);
                 setProvidersLoading(false);
                 setAvailableNext(false);
             } catch (error) {
@@ -54,10 +62,14 @@ const ProvidersComponent = (props) => {
             <Table className="providers-table" dataSource={providers} loading={providersLoading}>
                 <Column key="name" title="Name" render={provider => <div><Avatar src={provider.emblem} />&nbsp;{provider.name}</div>} />
                 <Column key="website" title="Website" render={provider => <a href={provider.website_url} >{provider.website_url.split('//')[1]}</a>} />
-                <Column key="fee" title="Fee">20%</Column>
+                <Column 
+                    key="fee" 
+                    title="Fee" 
+                    render={provider => `${provider.pools.map(pool => pool.network === 'songbird' && pool.fee).filter(item => item !== false)[0] / 100}%`} />
                 <Column key="check" render={(provider) => 
                     <Checkbox 
                         checked={selectedProviders.indexOf(provider) > -1 ? true : false}
+                        disabled={provider.pools.filter(pool => lowerPastDelegatesAddr.indexOf(pool.address) !== -1).length > 0 ? true : false}
                         onChange={() => handleProvider(provider)} />} 
                 />
             </Table>

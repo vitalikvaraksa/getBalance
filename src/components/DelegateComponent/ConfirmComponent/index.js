@@ -6,7 +6,7 @@ import { ethers } from 'ethers';
 import './index.css';
 
 const ConfirmComponent = (props) => {
-    const { providersArr, delegateValues, setConfirmCheck, delegateStart, setDoneDelegate } = props;
+    const { providersArr, delegateValues, setConfirmCheck, delegateStart, setDoneDelegate, remainAmount } = props;
     const { wNatContract, account } = useContext(AppContext);
     const [totalValue, setTotalValue] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
@@ -75,7 +75,7 @@ const ConfirmComponent = (props) => {
                 </Row>
                 <Row className="padding-row">
                     <Col span={6} className="font-gray">Available</Col>
-                    <Col span={8} className="font-gray">100%</Col>
+                    <Col span={8} className="font-gray">{remainAmount}%</Col>
                 </Row>
                 <div className="font-gray confirm-text">
                     Are you sure your delegations are correct?&nbsp;

@@ -15,16 +15,28 @@ const DelegateComponent = (props) => {
     const [current, setCurrent] = useState(0);
     const [providersArr, setProvidersArr] = useState([]);
     const [totalProviders, setTotalProviders] = useState([]);
-    const [delegateValues, setDelegateValues] = useState([50, 50]);
+    const [delegateValues, setDelegateValues] = useState([]);
     const [confirmCheck, setConfirmCheck] = useState(false);
     const [delegateStart, setDelegateStart] = useState(false);
     const [availableNext, setAvailableNext] = useState(true);
     const [doneDelegate, setDoneDelegate] = useState(false);
+    const [pastDelegatesAddr, setPastDelegatesAddr] = useState([]);
+    const [remainAmount, setRemainAmount] = useState(100);
+
 
     const next = () => {
         if (current === 1 && providersArr.length === 0) {
             notification.info({message: "You must select least one provider!", duration: 5});
             return;
+        }
+
+        if (current === 2) {
+            let newTotalValue = 0;
+            delegateValues.forEach(value => {newTotalValue += value;});
+            if (newTotalValue > remainAmount) {
+                notification.info({message: "Total delegate amount is not over available."});
+                return;
+            }
         }
 
         if (current === 3) {
@@ -78,22 +90,30 @@ const DelegateComponent = (props) => {
             <div className="steps-content">
                 {current === 0 && <TokenComponent 
                                     wNatContract={wNatContract}
+                                    setPastDelegatesAddr={setPastDelegatesAddr}
                                     setAvailableNext={setAvailableNext}
-                                    signer={signer}
+                                    remainAmount={remainAmount}
+                                    setRemainAmount={setRemainAmount}
                                     account={account} />}
                 {current === 1 && <ProvidersComponent 
                                     setProvidersArr={setProvidersArr}
                                     providersArr={providersArr} 
                                     totalProviders={totalProviders}
+                                    pastDelegatesAddr={pastDelegatesAddr}
                                     setAvailableNext={setAvailableNext}
                                     setTotalProviders={setTotalProviders} />}
-                {current === 2 && <ConfigureComponent providersArr={providersArr} delegateValues={delegateValues} setDelegateValues={setDelegateValues} />}
+                {current === 2 && <ConfigureComponent 
+                                    providersArr={providersArr} 
+                                    delegateValues={delegateValues} 
+                                    remainAmount={remainAmount}
+                                    setDelegateValues={setDelegateValues} />}
                 {current === 3 && <ConfirmComponent 
                                     providersArr={providersArr}
                                     delegateValues={delegateValues}
                                     setConfirmCheck={setConfirmCheck}
                                     delegateStart={delegateStart}
                                     setDoneDelegate={setDoneDelegate}
+                                    remainAmount={remainAmount}
                                     setAvailableNext={setAvailableNext} />}
                 {current === 4 && <CompleteComponent />}
             </div>

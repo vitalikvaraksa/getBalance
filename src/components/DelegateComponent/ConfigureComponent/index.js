@@ -3,8 +3,8 @@ import { Row, Col, Avatar, notification } from 'antd';
 import './index.css';
 
 const ConfigureComponent = (props) => {
-    const { providersArr, delegateValues, setDelegateValues } = props;
-    const [totalValue, setTotalValue] = useState(100);
+    const { providersArr, delegateValues, setDelegateValues, remainAmount } = props;
+    const [totalValue, setTotalValue] = useState(remainAmount);
 
     const handleChange = (delegateValue, providerIndex) => {
         const newValues = delegateValues.map((value, index) => providerIndex === index ? delegateValue : value);
@@ -24,7 +24,10 @@ const ConfigureComponent = (props) => {
 
     useEffect(() => {
         let newTotalValue = 0;
-        delegateValues.map(value => {
+        const perDelegateValue = remainAmount / providersArr.length;
+        const newDelegateValues = providersArr.map(provider => perDelegateValue);
+        setDelegateValues(newDelegateValues);
+        newDelegateValues.map(value => {
             newTotalValue += value * 1;
         });
 
@@ -59,7 +62,7 @@ const ConfigureComponent = (props) => {
             </Row>
             <Row className="padding-row">
                 <Col span={6} className="font-gray">Available</Col>
-                <Col span={10} className="font-gray">100%</Col>
+                <Col span={10} className="font-gray">{remainAmount}%</Col>
             </Row>
         </div>
     );
