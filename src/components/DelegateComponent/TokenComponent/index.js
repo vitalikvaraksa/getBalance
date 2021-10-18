@@ -15,6 +15,19 @@ const TokenComponent = (props) => {
 
     useEffect(async () => {
         if (wNatContract) {
+            const newDelegates = await wNatContract.delegatesOf(account);
+            const URL = 'https://app.ftso.com.au/action/get-ftso-providers';
+            try {
+                const response = await axios.get(URL);
+                const newProviders = response.data.message;
+                const newProvidersWithIndex = newProviders.filter(provider => provider.pools.length !== 0).map((provider, index) => ({...provider, key: index}));
+                const lowerPastDelegatesAddr = newDelegates._delegateAddresses.map(address => address.toLowerCase());
+                const newPastDelegates = newProvidersWithIndex.filter(provider => provider.pools.filter(pool => lowerPastDelegatesAddr.indexOf(pool.address) > -1).length > 0);
+                setPastDelegates(newPastDelegates);
+            } catch (error) {
+                console.log(error);
+                notification.error({message: 'Network Error', duration: 5});
+            }
             await mainEngine()
         }
     }, [wNatContract])
@@ -24,24 +37,11 @@ const TokenComponent = (props) => {
         setWSGBBalance(ethers.utils.formatEther(wrappedBalance));
 
         const newDelegates = await wNatContract.delegatesOf(account);
-        console.log(newDelegates)
         let newRemainAmount = 100;
         newDelegates._bips.forEach(bips => {
             newRemainAmount -= parseInt(bips) / 100;
         });
         
-
-        const URL = 'https://app.ftso.com.au/action/get-ftso-providers';
-        try {
-            const response = await axios.get(URL);
-            const newProviders = response.data.message;
-            const newProvidersWithIndex = newProviders.filter(provider => provider.pools.length !== 0).map((provider, index) => ({...provider, key: index}));
-            const lowerPastDelegatesAddr = newDelegates._delegateAddresses.map(address => address.toLowerCase());
-            const newPastDelegates = newProvidersWithIndex.filter(provider => provider.pools.filter(pool => lowerPastDelegatesAddr.indexOf(pool.address) > -1).length > 0);
-            setPastDelegates(newPastDelegates);
-        } catch (error) {
-            notification.error({message: 'Network Error', duration: 5});
-        }
         setPastDelegatesAddr(newDelegates._delegateAddresses);
         setRemainAmount(newRemainAmount);
         setDelegates(newDelegates);
