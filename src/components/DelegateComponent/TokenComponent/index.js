@@ -24,6 +24,7 @@ const TokenComponent = (props) => {
         setWSGBBalance(ethers.utils.formatEther(wrappedBalance));
 
         const newDelegates = await wNatContract.delegatesOf(account);
+        console.log(newDelegates)
         let newRemainAmount = 100;
         newDelegates._bips.forEach(bips => {
             newRemainAmount -= parseInt(bips) / 100;
@@ -37,7 +38,6 @@ const TokenComponent = (props) => {
             const newProvidersWithIndex = newProviders.filter(provider => provider.pools.length !== 0).map((provider, index) => ({...provider, key: index}));
             const lowerPastDelegatesAddr = newDelegates._delegateAddresses.map(address => address.toLowerCase());
             const newPastDelegates = newProvidersWithIndex.filter(provider => provider.pools.filter(pool => lowerPastDelegatesAddr.indexOf(pool.address) > -1).length > 0);
-            console.log(newPastDelegates)
             setPastDelegates(newPastDelegates);
         } catch (error) {
             notification.error({message: 'Network Error', duration: 5});
@@ -99,7 +99,7 @@ const TokenComponent = (props) => {
                                 const bips = delegates._bips[index] * 1 / 100;
                                 return (
                                     <Row key={index} className="delegation-status gray-container">
-                                        <Col span={10} className="font-bold"><Avatar src={pastDelegates[index].emblem} />{pastDelegates[index].name}</Col>
+                                        <Col span={10} className="font-bold align-center"><Avatar src={pastDelegates[index].emblem} />&nbsp;{pastDelegates[index].name}</Col>
                                         <Col span={6}>{bips}%</Col>
                                         <Col span={6}><Button onClick={() => unDelegate(address)}>Undelegate</Button></Col>
                                     </Row>

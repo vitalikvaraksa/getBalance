@@ -32,7 +32,7 @@ const DelegateComponent = (props) => {
 
         if (current === 2) {
             let newTotalValue = 0;
-            delegateValues.forEach(value => {newTotalValue += value;});
+            delegateValues.forEach(value => {newTotalValue += value * 1;});
             if (newTotalValue > remainAmount) {
                 notification.info({message: "Total delegate amount is not over available."});
                 return;

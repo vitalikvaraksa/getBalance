@@ -36,3 +36,8 @@
     margin: 5px 0;
     border-radius: 8px;
 }
+
+.align-center {
+    display: flex;
+    align-items: center;
+}
