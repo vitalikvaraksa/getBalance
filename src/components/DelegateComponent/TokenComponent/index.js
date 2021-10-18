@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
+import axios from 'axios';
 import { Select, Divider, Row, Col, Avatar, Button, Spin, notification } from 'antd';
 import './index.css';
 
@@ -10,6 +11,7 @@ const TokenComponent = (props) => {
     const [WSGBBalance, setWSGBBalance] = useState(0);
     const [delegates, setDelegates] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [pastDelegates, setPastDelegates] = useState([]);
 
     useEffect(async () => {
         if (wNatContract) {
@@ -26,10 +28,23 @@ const TokenComponent = (props) => {
         newDelegates._bips.forEach(bips => {
             newRemainAmount -= parseInt(bips) / 100;
         });
+        
+
+        const URL = 'https://app.ftso.com.au/action/get-ftso-providers';
+        try {
+            const response = await axios.get(URL);
+            const newProviders = response.data.message;
+            const newProvidersWithIndex = newProviders.filter(provider => provider.pools.length !== 0).map((provider, index) => ({...provider, key: index}));
+            const lowerPastDelegatesAddr = newDelegates._delegateAddresses.map(address => address.toLowerCase());
+            const newPastDelegates = newProvidersWithIndex.filter(provider => provider.pools.filter(pool => lowerPastDelegatesAddr.indexOf(pool.address) > -1).length > 0);
+            console.log(newPastDelegates)
+            setPastDelegates(newPastDelegates);
+        } catch (error) {
+            notification.error({message: 'Network Error', duration: 5});
+        }
         setPastDelegatesAddr(newDelegates._delegateAddresses);
         setRemainAmount(newRemainAmount);
         setDelegates(newDelegates);
-
         setAvailableNext(false);
     }
 
@@ -84,7 +99,7 @@ const TokenComponent = (props) => {
                                 const bips = delegates._bips[index] * 1 / 100;
                                 return (
                                     <Row key={index} className="delegation-status gray-container">
-                                        <Col span={10} className="font-bold">{address}</Col>
+                                        <Col span={10} className="font-bold"><Avatar src={pastDelegates[index].emblem} />{pastDelegates[index].name}</Col>
                                         <Col span={6}>{bips}%</Col>
                                         <Col span={6}><Button onClick={() => unDelegate(address)}>Undelegate</Button></Col>
                                     </Row>

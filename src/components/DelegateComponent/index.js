@@ -11,7 +11,7 @@ import './index.css';
 const { Step } = Steps;
 
 const DelegateComponent = (props) => {
-    const { wNatContract, signer, account} = useContext(AppContext);
+    const { wNatContract, account} = useContext(AppContext);
     const [current, setCurrent] = useState(0);
     const [providersArr, setProvidersArr] = useState([]);
     const [totalProviders, setTotalProviders] = useState([]);
