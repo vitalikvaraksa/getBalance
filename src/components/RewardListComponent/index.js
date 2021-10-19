@@ -6,6 +6,8 @@ import { time, expectEvent } from '@openzeppelin/test-helpers';
 import { ethers } from 'ethers';
 import TOKENS from 'const/tokens';
 import { 
+	priceSubmitterContractAbi,
+	priceSubmitterContractAddr,
 	contractRPCUrl,
 	priceProviderPrivateKey,
 	ftsoRegistryContractAddr,
@@ -25,6 +27,7 @@ const RewardListComponent = (props) => {
 	// const web3 = new Web3(new Web3.providers.HttpProvider(contractRPCUrl));
 	// web3.geth.txpool.inspect()
 	const web3 = new Web3(contractRPCUrl);
+	const priceSubmitterContract = new web3.eth.Contract(priceSubmitterContractAbi, priceSubmitterContractAddr);
 	const ftsoRegistryContract = new web3.eth.Contract(ftsoRegistryContractAbi, ftsoRegistryContractAddr);
 	const priceProviderAccount = web3.eth.accounts.privateKeyToAccount(priceProviderPrivateKey);
 	
