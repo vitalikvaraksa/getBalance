@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useContext} from 'react';
-import { Table } from 'antd';
+import { Table, notification, Card, Button } from 'antd';
 import { promisify } from 'util';
 import Web3 from 'web3';
 import { time, expectEvent } from '@openzeppelin/test-helpers';
@@ -23,6 +23,9 @@ const RewardListComponent = (props) => {
 	const { ftsoRewardManagerContract } = props;
 	const { signer, account } = useContext(AppContext);
     const [balances, setBalances] = useState([]);
+	const [claimRewardLoading, setClaimRewardLoading] = useState(false);
+	const [rewardAmount, setRewardAmount] = useState(0);
+	const [claimableEpochs, setClaimableEpochs] = useState(0);
 	const symbols = TOKENS.map(token => token.SYMBOL);
 	// const web3 = new Web3(new Web3.providers.HttpProvider(contractRPCUrl));
 	// web3.geth.txpool.inspect()
@@ -108,9 +111,8 @@ const RewardListComponent = (props) => {
 
 	useEffect(async () => {
 		if (ftsoRewardManagerContract) {
-			const claimableEpochs = [];
-			let rewardsAmount = ethers.BigNumber.from(0);
-			let rewardsInitialized = true;
+			const newClaimableEpochs = [];
+			let newRewardsAmount = ethers.BigNumber.from(0);
 			try {
 				const epochs = await ftsoRewardManagerContract.getEpochsWithUnclaimedRewards(account)
 				console.log(epochs)
@@ -118,17 +120,18 @@ const RewardListComponent = (props) => {
 					const reward = await ftsoRewardManagerContract.getStateOfRewards(account, epochs[i])
 					console.log(reward)
 					if (reward._claimable) {
-						claimableEpochs.push(epochs[i])
+						newClaimableEpochs.push(epochs[i])
 						for (let j = 0; j < reward._dataProviders.length; j++) {
 							if (!reward._claimed[j]) {
-								rewardsAmount = rewardsAmount.add(reward._rewardAmounts[j])
+								newRewardsAmount = newRewardsAmount.add(reward._rewardAmounts[j])
 							}
 						}
 					}
 				}
+				setClaimableEpochs(newClaimableEpochs);
+				setRewardAmount(ethers.utils.formatEther(newRewardsAmount));
 			} catch (err) {
 				console.log(err)
-				rewardsInitialized = false
 			}
 		}
 	}, [ftsoRewardManagerContract])
@@ -260,6 +263,27 @@ const RewardListComponent = (props) => {
 			return info.close;
 		}
 	}
+
+	const claimReward = async () => {
+		try {
+			setClaimRewardLoading(true);
+			const tx = await ftsoRewardManagerContract.claimReward(account, claimableEpochs.slice(0, 13));
+			try {
+				await tx.wait();
+				setClaimRewardLoading(false);
+				notification.success({message: 'Claim Reward is successed.', duration: 5});
+			} catch (err) {
+				console.log(err);
+				setClaimRewardLoading(false);
+				notification.error({message: 'Transaction is failed.', duration: 5});
+			}
+		} catch (err) {
+			console.log(err);
+			setClaimRewardLoading(false);
+			notification.error({message: 'Claim Reward is faild.', duration: 5});
+		}
+	}
+
     return (
         <div className="price-table">
             <Table dataSource={balances} >
@@ -272,6 +296,14 @@ const RewardListComponent = (props) => {
 					sorter={(a, b) => a.balance - b.balance}
 				/>
 			</Table>
+			<div className="card-wrapper-container">
+				<Card title="My claimable rewards" loading={claimRewardLoading} bordered >
+					<div className="card-content">
+						<p>Total Claimable Rewards : {rewardAmount} SGB</p>
+						<Button onClick={claimReward} disabled={rewardAmount * 1 === 0}>Claim All Rewards</Button>
+					</div>
+				</Card>
+			</div>
         </div>
     );
 }

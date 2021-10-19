@@ -7,7 +7,7 @@ import './index.css';
 const { Option } = Select;
 
 const TokenComponent = (props) => {
-    const { wNatContract, account, setAvailableNext, setPastDelegatesAddr, remainAmount, setRemainAmount } = props;
+    const { wNatContract, account, setAvailableNext, setPastDelegatesAddr, remainAmount, setRemainAmount, current } = props;
     const [WSGBBalance, setWSGBBalance] = useState(0);
     const [delegates, setDelegates] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -18,19 +18,21 @@ const TokenComponent = (props) => {
             const newDelegates = await wNatContract.delegatesOf(account);
             const URL = 'https://app.ftso.com.au/action/get-ftso-providers';
             try {
+                setAvailableNext(true)
                 const response = await axios.get(URL);
                 const newProviders = response.data.message;
                 const newProvidersWithIndex = newProviders.filter(provider => provider.pools.length !== 0).map((provider, index) => ({...provider, key: index}));
                 const lowerPastDelegatesAddr = newDelegates._delegateAddresses.map(address => address.toLowerCase());
                 const newPastDelegates = newProvidersWithIndex.filter(provider => provider.pools.filter(pool => lowerPastDelegatesAddr.indexOf(pool.address) > -1).length > 0);
                 setPastDelegates(newPastDelegates);
+                await mainEngine()
             } catch (error) {
                 console.log(error);
+                setAvailableNext(true);
                 notification.error({message: 'Network Error', duration: 5});
             }
-            await mainEngine()
         }
-    }, [wNatContract])
+    }, [wNatContract, current])
 
     const mainEngine = async () => {
         const wrappedBalance = await wNatContract.balanceOf(account);
@@ -95,7 +97,7 @@ const TokenComponent = (props) => {
                             ? <div className="delegation-status gray-container">
                                 No Delegations
                             </div>
-                            : delegates._delegateAddresses.map((address, index) => {
+                            : pastDelegates.length !== 0 && delegates._delegateAddresses.map((address, index) => {
                                 const bips = delegates._bips[index] * 1 / 100;
                                 return (
                                     <Row key={index} className="delegation-status gray-container">

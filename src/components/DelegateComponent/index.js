@@ -89,6 +89,7 @@ const DelegateComponent = (props) => {
             <Divider />
             <div className="steps-content">
                 {current === 0 && <TokenComponent 
+                                    current={current}
                                     wNatContract={wNatContract}
                                     setPastDelegatesAddr={setPastDelegatesAddr}
                                     setAvailableNext={setAvailableNext}
@@ -96,18 +97,21 @@ const DelegateComponent = (props) => {
                                     setRemainAmount={setRemainAmount}
                                     account={account} />}
                 {current === 1 && <ProvidersComponent 
+                                    current={current}
                                     setProvidersArr={setProvidersArr}
                                     providersArr={providersArr} 
                                     totalProviders={totalProviders}
                                     pastDelegatesAddr={pastDelegatesAddr}
                                     setAvailableNext={setAvailableNext}
                                     setTotalProviders={setTotalProviders} />}
-                {current === 2 && <ConfigureComponent 
+                {current === 2 && <ConfigureComponent
+                                    current={current} 
                                     providersArr={providersArr} 
                                     delegateValues={delegateValues} 
                                     remainAmount={remainAmount}
                                     setDelegateValues={setDelegateValues} />}
                 {current === 3 && <ConfirmComponent 
+                                    current={current}
                                     providersArr={providersArr}
                                     delegateValues={delegateValues}
                                     setConfirmCheck={setConfirmCheck}

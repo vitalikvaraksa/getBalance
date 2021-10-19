@@ -6,7 +6,7 @@ import { ethers } from 'ethers';
 import './index.css';
 
 const ConfirmComponent = (props) => {
-    const { providersArr, delegateValues, setConfirmCheck, delegateStart, setDoneDelegate, remainAmount } = props;
+    const { providersArr, delegateValues, setConfirmCheck, delegateStart, setDoneDelegate, remainAmount, current } = props;
     const { wNatContract, account } = useContext(AppContext);
     const [totalValue, setTotalValue] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
@@ -24,7 +24,7 @@ const ConfirmComponent = (props) => {
         console.log(delegationsCount)
 
         setTotalValue(newTotalValue);
-    }, [])
+    }, [current])
 
     useEffect(async () => {
         if (delegateStart) {

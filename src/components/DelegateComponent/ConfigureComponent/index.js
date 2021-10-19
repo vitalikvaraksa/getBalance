@@ -3,7 +3,7 @@ import { Row, Col, Avatar, notification } from 'antd';
 import './index.css';
 
 const ConfigureComponent = (props) => {
-    const { providersArr, delegateValues, setDelegateValues, remainAmount } = props;
+    const { providersArr, delegateValues, setDelegateValues, remainAmount, current } = props;
     const [totalValue, setTotalValue] = useState(remainAmount);
 
     const handleChange = (delegateValue, providerIndex) => {
@@ -32,7 +32,7 @@ const ConfigureComponent = (props) => {
         });
 
         setTotalValue(newTotalValue);
-    }, [])
+    }, [current])
 
     return (
         <div className="configure-container">

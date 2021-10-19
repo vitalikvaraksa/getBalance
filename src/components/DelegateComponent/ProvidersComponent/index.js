@@ -7,7 +7,7 @@ import './index.css';
 const { Column } = Table;
 
 const ProvidersComponent = (props) => {
-    const { setProvidersArr, providersArr, totalProviders, setTotalProviders, setAvailableNext, pastDelegatesAddr } = props;
+    const { setProvidersArr, providersArr, totalProviders, setTotalProviders, setAvailableNext, pastDelegatesAddr, current } = props;
     const [providers, setProviders] = useState(totalProviders);
     const [providersLoading, setProvidersLoading] = useState(false);
     const [selectedProviders, setSelectedProviders] = useState(providersArr);
@@ -53,8 +53,11 @@ const ProvidersComponent = (props) => {
                 setProvidersLoading(false);
                 notification.error({message: 'Network Error', duration: 5});
             }
+        } else {
+            const lowerPastDelegatesAddr = pastDelegatesAddr.map(address => address.toLowerCase());
+            setLowerPastDelegateAddr(lowerPastDelegatesAddr);
         }
-    }, []);
+    }, [current]);
 
     return (
         <div className="providers-container">
