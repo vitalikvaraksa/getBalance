@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import { Table } from 'antd';
 import { promisify } from 'util';
 import Web3 from 'web3';
@@ -7,27 +7,27 @@ import { ethers } from 'ethers';
 import TOKENS from 'const/tokens';
 import { 
 	contractRPCUrl,
-	priceSubmitterContractAbi,
-	priceSubmitterContractAddr,
 	priceProviderPrivateKey,
 	ftsoRegistryContractAddr,
 	ftsoRegistryContractAbi,
 	childContractAbi,
 	trustedAccountAddr
 } from 'const/songbird';
+import { AppContext } from 'utils/context';
 import REQUEST from 'utils/request';
 import './index.css';
 
 const RewardListComponent = (props) => {
+	const { ftsoRewardManagerContract } = props;
+	const { signer, account } = useContext(AppContext);
     const [balances, setBalances] = useState([]);
 	const symbols = TOKENS.map(token => token.SYMBOL);
 	// const web3 = new Web3(new Web3.providers.HttpProvider(contractRPCUrl));
 	// web3.geth.txpool.inspect()
 	const web3 = new Web3(contractRPCUrl);
-	const priceSubmitterContract = new web3.eth.Contract(priceSubmitterContractAbi, priceSubmitterContractAddr);
 	const ftsoRegistryContract = new web3.eth.Contract(ftsoRegistryContractAbi, ftsoRegistryContractAddr);
 	const priceProviderAccount = web3.eth.accounts.privateKeyToAccount(priceProviderPrivateKey);
-
+	
 	useEffect(async () => {
 		const newBalance = await getBalanecs();
 		setBalances(newBalance);
@@ -98,10 +98,37 @@ const RewardListComponent = (props) => {
 		// 	// await expectEvent(reveal, "PricesRevealed", { ftsos: ftsoAddresses,
 		// 	// 	epochId: (currentEpoch - 1).toString(), prices: balances.map(x => toBN(x)) });
 	
-		// 	console.log("Revealed prices for epoch ", currentEpoch - 1);
+		// 	console.log("Revealed prices for sepoch ", currentEpoch - 1);
 		// 	// start loop again, the price submission has already started
 		// }
 	}, []);
+
+	useEffect(async () => {
+		if (ftsoRewardManagerContract) {
+			const claimableEpochs = [];
+			let rewardsAmount = ethers.BigNumber.from(0);
+			let rewardsInitialized = true;
+			try {
+				const epochs = await ftsoRewardManagerContract.getEpochsWithUnclaimedRewards(account)
+				console.log(epochs)
+				for (let i = 0; i < epochs.length; i++) {
+					const reward = await ftsoRewardManagerContract.getStateOfRewards(account, epochs[i])
+					console.log(reward)
+					if (reward._claimable) {
+						claimableEpochs.push(epochs[i])
+						for (let j = 0; j < reward._dataProviders.length; j++) {
+							if (!reward._claimed[j]) {
+								rewardsAmount = rewardsAmount.add(reward._rewardAmounts[j])
+							}
+						}
+					}
+				}
+			} catch (err) {
+				console.log(err)
+				rewardsInitialized = false
+			}
+		}
+	}, [ftsoRewardManagerContract])
 
 	const advanceBlock = () => promisify(web3.currentProvider.send.bind(web3.currentProvider))({
 		jsonrpc: '2.0',

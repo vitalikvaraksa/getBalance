@@ -33,6 +33,7 @@ function App() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [currentAccount, setCurrentAccount] = useState(account);
 	const [wNatContract, setWNatContract] = useState();
+	const [ftsoRewardManagerContract, setFtsoRewardManagerContract] = useState();
 	const provider = new ethers.providers.Web3Provider(window.ethereum);
 	const signer = provider.getSigner();
 	
@@ -50,10 +51,11 @@ function App() {
 
 	useEffect(async () => {
         if (account) {
-            const priceSubmitterContract = getPriceSubmitterContract(provider);
-            const ftsoManagerContract = getFtsoManagerContract(provider, await priceSubmitterContract.getFtsoManager());
-            const ftsoRewardManagerContract = getFtsoRewardManagerContract(signer, await ftsoManagerContract.rewardManager());
-            const contract = getWNatContract(signer, await ftsoRewardManagerContract.wNat());
+            const newPriceSubmitterContract = getPriceSubmitterContract(provider);
+            const ftsoManagerContract = getFtsoManagerContract(provider, await newPriceSubmitterContract.getFtsoManager());
+            const newFtsoRewardManagerContract = getFtsoRewardManagerContract(signer, await ftsoManagerContract.rewardManager());
+            const contract = getWNatContract(signer, await newFtsoRewardManagerContract.wNat());
+			setFtsoRewardManagerContract(newFtsoRewardManagerContract);
             setWNatContract(contract);
         }
     }, [account])
@@ -108,7 +110,7 @@ function App() {
 						<div className="site-layout-content">
 							<Tabs className="tab-container" type="card">
 								<TabPane tab="Price Balances" key={1}>
-									<RewardListComponent />
+									<RewardListComponent ftsoRewardManagerContract={ftsoRewardManagerContract} />
 								</TabPane>
 								<TabPane tab="Wrap/Unwrap" key={2}>
 									<WrapComponent />
