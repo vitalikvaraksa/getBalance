@@ -63,13 +63,13 @@ const ProvidersComponent = (props) => {
         <div className="providers-container">
             <div className="providers-container-title">Choose Providers</div>
             <Table className="providers-table" dataSource={providers} loading={providersLoading} pagination={false} >
-                <Column key="name" title="Name" render={provider => <div><Avatar src={provider.emblem} />&nbsp;{provider.name}</div>} />
+                <Column fixed={'left'} width={160} key="name" title="Name" render={provider => <div className="provider-name"><Avatar src={provider.emblem} />&nbsp;{provider.name}</div>} />
                 <Column key="website" title="Website" render={provider => <a href={provider.website_url} >{provider.website_url.split('//')[1]}</a>} />
                 <Column 
                     key="fee" 
                     title="Fee" 
                     render={provider => `${provider.pools.map(pool => pool.network === 'songbird' && pool.fee).filter(item => item !== false)[0] / 100}%`} />
-                <Column key="check" render={(provider) => 
+                <Column fixed={'right'} key="check" render={(provider) => 
                     <Checkbox 
                         checked={selectedProviders.indexOf(provider) > -1 ? true : false}
                         disabled={provider.pools.filter(pool => lowerPastDelegatesAddr.indexOf(pool.address) !== -1).length > 0 ? true : false}

@@ -26,6 +26,7 @@
 }
 
 .configure-input-value {
+    width: 100%;
     background-color: #ccc;
     border: none;
 }

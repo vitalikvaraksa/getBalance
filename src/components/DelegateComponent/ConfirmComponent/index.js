@@ -58,24 +58,24 @@ const ConfirmComponent = (props) => {
             <Spin spinning={isLoading}>
                 <div className="confirm-container-title">Confirm Delegations</div>
                 <Row className="padding-row">
-                    <Col span={6} className="font-bold">Provider</Col>
-                    <Col span={8} className="font-bold">Percentage</Col>
+                    <Col md={6} xs={10} className="font-bold">Provider</Col>
+                    <Col md={8} xs={10} className="font-bold">Percentage</Col>
                 </Row>
                 {
                     providersArr.map((provider, index) => 
                         <Row key={index} className="padding-row">
-                            <Col span={6} className="font-bold"><Avatar src={provider.emblem} />{provider.name}</Col>
-                            <Col span={8}>{delegateValues[index]} %</Col>
+                            <Col md={6} xs={10} className="font-bold"><Avatar src={provider.emblem} />{provider.name}</Col>
+                            <Col md={8} xs={10}>{delegateValues[index]} %</Col>
                         </Row>
                     )
                 }
                 <Row className="padding-row">
-                    <Col span={6} className="font-gray">Total</Col>
-                    <Col span={8} className="font-gray">{totalValue}%</Col>
+                    <Col md={6} xs={10} className="font-gray">Total</Col>
+                    <Col md={8} xs={10} className="font-gray">{totalValue}%</Col>
                 </Row>
                 <Row className="padding-row">
-                    <Col span={6} className="font-gray">Available</Col>
-                    <Col span={8} className="font-gray">{remainAmount}%</Col>
+                    <Col md={6} xs={10} className="font-gray">Available</Col>
+                    <Col md={8} xs={10} className="font-gray">{remainAmount}%</Col>
                 </Row>
                 <div className="font-gray confirm-text">
                     Are you sure your delegations are correct?&nbsp;

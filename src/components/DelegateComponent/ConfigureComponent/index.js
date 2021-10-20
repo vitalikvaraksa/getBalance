@@ -38,14 +38,14 @@ const ConfigureComponent = (props) => {
         <div className="configure-container">
             <div className="configure-container-title">Configure Delegations</div>
             <Row className="padding-row">
-                <Col span={6} className="font-bold">Provider</Col>
-                <Col span={10} className="font-bold">Percentage</Col>
+                <Col md={6} xs={10} className="font-bold">Provider</Col>
+                <Col md={10} xs={10} className="font-bold">Percentage</Col>
             </Row>
             {
                 providersArr.map((provider, index) => 
                     <Row key={index} className="padding-row">
-                        <Col span={6} className="font-bold"><Avatar src={provider.emblem} />{provider.name}</Col>
-                        <Col span={10}>
+                        <Col md={6} xs={10} className="font-bold"><Avatar src={provider.emblem} />{provider.name}</Col>
+                        <Col md={10} xs={10}>
                             <input 
                                 type="number"
                                 className="configure-input-value"
@@ -57,12 +57,12 @@ const ConfigureComponent = (props) => {
                 )
             }
             <Row className="padding-row">
-                <Col span={6} className="font-gray">Total</Col>
-                <Col span={10} className="font-gray">{totalValue}%</Col>
+                <Col md={6} xs={10} className="font-gray">Total</Col>
+                <Col md={10} xs={10} className="font-gray">{totalValue}%</Col>
             </Row>
             <Row className="padding-row">
-                <Col span={6} className="font-gray">Available</Col>
-                <Col span={10} className="font-gray">{remainAmount}%</Col>
+                <Col md={6} xs={10} className="font-gray">Available</Col>
+                <Col md={10} xs={10} className="font-gray">{remainAmount}%</Col>
             </Row>
         </div>
     );

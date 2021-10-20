@@ -101,9 +101,9 @@ const TokenComponent = (props) => {
                                 const bips = delegates._bips[index] * 1 / 100;
                                 return (
                                     <Row key={index} className="delegation-status gray-container">
-                                        <Col span={10} className="font-bold align-center"><Avatar src={pastDelegates[index].emblem} />&nbsp;{pastDelegates[index].name}</Col>
-                                        <Col span={6}>{bips}%</Col>
-                                        <Col span={6}><Button onClick={() => unDelegate(address)}>Undelegate</Button></Col>
+                                        <Col md={10} xs={10} className="font-bold align-center"><Avatar src={pastDelegates[index].emblem} />&nbsp;{pastDelegates[index].name}</Col>
+                                        <Col md={6} xs={4}>{bips}%</Col>
+                                        <Col md={6} xs={10}><Button onClick={() => unDelegate(address)}>Undelegate</Button></Col>
                                     </Row>
                                 );
                             })

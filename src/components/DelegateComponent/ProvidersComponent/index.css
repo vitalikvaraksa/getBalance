@@ -3,3 +3,9 @@
     font-weight: bold;
     overflow: auto;
 }
+
+.provider-name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}

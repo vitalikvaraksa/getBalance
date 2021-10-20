@@ -82,7 +82,7 @@ const DelegateComponent = (props) => {
             <Steps current={current}>
                 {
                     steps.map(item => 
-                        <Step key={item.title} title={item.title} />
+                        <Step key={item.title} />
                     )
                 }
             </Steps>
