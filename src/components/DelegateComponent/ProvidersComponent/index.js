@@ -62,7 +62,7 @@ const ProvidersComponent = (props) => {
     return (
         <div className="providers-container">
             <div className="providers-container-title">Choose Providers</div>
-            <Table className="providers-table" dataSource={providers} loading={providersLoading}>
+            <Table className="providers-table" dataSource={providers} loading={providersLoading} pagination={false} >
                 <Column key="name" title="Name" render={provider => <div><Avatar src={provider.emblem} />&nbsp;{provider.name}</div>} />
                 <Column key="website" title="Website" render={provider => <a href={provider.website_url} >{provider.website_url.split('//')[1]}</a>} />
                 <Column 

@@ -72,7 +72,7 @@ const WrapComponent = (props) => {
             {
                 !active && <div className="error-text">*Please Connect Wallet*</div>
             }
-            <Spin spinning={isLoading}>
+            <Spin spinning={isLoading} tip={wrapStatus ? "Wrapping..." : "Unwrapping..."}>
                 <div className="operate-section">
                     <div className="switch-wrap">
                         <span className={`switch-wrap-btn ${wrapStatus && "selected"}`} onClick={() => setWrapStatus(true)} >WRAP</span>

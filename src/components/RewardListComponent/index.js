@@ -24,6 +24,7 @@ const RewardListComponent = (props) => {
 	const { signer, account } = useContext(AppContext);
     const [balances, setBalances] = useState([]);
 	const [claimRewardLoading, setClaimRewardLoading] = useState(false);
+	const [rewardListLoading, setRewardListLoading] = useState(false);
 	const [rewardAmount, setRewardAmount] = useState(0);
 	const [claimableEpochs, setClaimableEpochs] = useState(0);
 	const symbols = TOKENS.map(token => token.SYMBOL);
@@ -35,8 +36,10 @@ const RewardListComponent = (props) => {
 	const priceProviderAccount = web3.eth.accounts.privateKeyToAccount(priceProviderPrivateKey);
 	
 	useEffect(async () => {
+		setRewardListLoading(true);
 		const newBalance = await getBalanecs();
 		setBalances(newBalance);
+		setRewardListLoading(false);
 		// const ftsos = await Promise.all(
 		// 	symbols.map(async sym => {
 		// 		const addr = await ftsoRegistryContract.methods.getFtsoBySymbol(sym).call()
@@ -286,7 +289,7 @@ const RewardListComponent = (props) => {
 
     return (
         <div className="price-table">
-            <Table dataSource={balances} >
+            <Table dataSource={balances} loading={rewardListLoading} pagination={false}>
 				<Table.Column title="Token Pair" dataIndex="pair" key="pair" />
 				<Table.Column 
 					key="balance"

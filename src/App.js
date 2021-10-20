@@ -31,42 +31,36 @@ function App() {
 	const [activatingConnector, setActivatingConnector] = useState();
 	const [isModalVisible, setModalVisible] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
-	const [currentAccount, setCurrentAccount] = useState(account);
 	const [wNatContract, setWNatContract] = useState();
 	const [provider, setProvider] = useState();
 	const [signer, setSigner] = useState();
 	const [ftsoRewardManagerContract, setFtsoRewardManagerContract] = useState();
-	
+
 	useEffect(() => {
 		if (activatingConnector && activatingConnector === connector) {
-			const newProvider = new ethers.providers.Web3Provider(window.ethereum);
-			const newSigner = provider.getSigner();
-			setProvider(newProvider);
-			setSigner(newSigner);
 			setActivatingConnector(undefined)
 		}
 	}, [activatingConnector, connector]);
 
-	useEffect(() => {
-		console.log(connector)
-		setIsLoading(false);
-		setCurrentAccount(account);
-		setModalVisible(false);
-	}, [connector]);
-
 	useEffect(async () => {
         if (account) {
-            const newPriceSubmitterContract = getPriceSubmitterContract(provider);
-            const ftsoManagerContract = getFtsoManagerContract(provider, await newPriceSubmitterContract.getFtsoManager());
-            const newFtsoRewardManagerContract = getFtsoRewardManagerContract(signer, await ftsoManagerContract.rewardManager());
-            const contract = getWNatContract(signer, await newFtsoRewardManagerContract.wNat());
+			const newProvider = new ethers.providers.Web3Provider(window.ethereum);
+			const newSigner = newProvider.getSigner();
+            const newPriceSubmitterContract = getPriceSubmitterContract(newProvider);
+            const ftsoManagerContract = getFtsoManagerContract(newProvider, await newPriceSubmitterContract.getFtsoManager());
+            const newFtsoRewardManagerContract = getFtsoRewardManagerContract(newSigner, await ftsoManagerContract.rewardManager());
+            const contract = getWNatContract(newSigner, await newFtsoRewardManagerContract.wNat());
+			setProvider(newProvider);
+			setSigner(newSigner);
 			setFtsoRewardManagerContract(newFtsoRewardManagerContract);
             setWNatContract(contract);
         }
+		setIsLoading(false);
+		setModalVisible(false);
     }, [account])
 
 	useEffect(() => {
-		if (error) {
+		if (error instanceof UnsupportedChainIdError) {
 			notification.error({message: getErrorMessage(error), duration: 5});
 		}
 	}, [error])
@@ -112,8 +106,8 @@ function App() {
 					<Header>
 						<div className="header">
 							<div className="logo">FTSO</div>
-							<Button type="primary" shape="round" onClick={() => !active ? setModalVisible(true) : deactivate(injected)}>
-								{!active ? "Connect Wallet" : currentAccount && `${currentAccount.substring(0, 9)}...${currentAccount.slice(-5)}`}
+							<Button type="primary" shape="round" onClick={() => !active && setModalVisible(true)}>
+								{!active ? "Connect Wallet" : account && `${account.substring(0, 9)}...${account.slice(-5)}`}
 							</Button>
 						</div>
 					</Header>
