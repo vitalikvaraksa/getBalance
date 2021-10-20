@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Tabs, Button, Modal, Avatar, Spin, Card } from 'antd';
+import { Layout, Tabs, Button, Modal, Avatar, Spin, Card, notification } from 'antd';
 import { Web3ReactProvider, useWeb3React, UnsupportedChainIdError } from '@web3-react/core';
 import { Web3Provider } from "@ethersproject/providers";
 import { ethers } from 'ethers';
@@ -33,17 +33,22 @@ function App() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [currentAccount, setCurrentAccount] = useState(account);
 	const [wNatContract, setWNatContract] = useState();
+	const [provider, setProvider] = useState();
+	const [signer, setSigner] = useState();
 	const [ftsoRewardManagerContract, setFtsoRewardManagerContract] = useState();
-	const provider = new ethers.providers.Web3Provider(window.ethereum);
-	const signer = provider.getSigner();
 	
 	useEffect(() => {
 		if (activatingConnector && activatingConnector === connector) {
+			const newProvider = new ethers.providers.Web3Provider(window.ethereum);
+			const newSigner = provider.getSigner();
+			setProvider(newProvider);
+			setSigner(newSigner);
 			setActivatingConnector(undefined)
 		}
 	}, [activatingConnector, connector]);
 
 	useEffect(() => {
+		console.log(connector)
 		setIsLoading(false);
 		setCurrentAccount(account);
 		setModalVisible(false);
@@ -59,6 +64,12 @@ function App() {
             setWNatContract(contract);
         }
     }, [account])
+
+	useEffect(() => {
+		if (error) {
+			notification.error({message: getErrorMessage(error), duration: 5});
+		}
+	}, [error])
 
 
 	const triedEager = useEagerConnect();
@@ -88,7 +99,7 @@ function App() {
 		  	error instanceof UserRejectedRequestErrorFrame
 		) {
 		  	return 'Please authorize this website to access your Ethereum account.'
-		} else {
+		} else if (!!error) {
 		  	console.error(error)
 		  	return 'An unknown error occurred. Check the console for more details.'
 		}
@@ -101,7 +112,7 @@ function App() {
 					<Header>
 						<div className="header">
 							<div className="logo">FTSO</div>
-							<Button type="primary" shape="round" onClick={() => !active && setModalVisible(true)}>
+							<Button type="primary" shape="round" onClick={() => !active ? setModalVisible(true) : deactivate(injected)}>
 								{!active ? "Connect Wallet" : currentAccount && `${currentAccount.substring(0, 9)}...${currentAccount.slice(-5)}`}
 							</Button>
 						</div>
