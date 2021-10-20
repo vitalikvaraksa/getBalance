@@ -57,6 +57,10 @@
 }
 
 @media screen and (max-width: 480px) {
+  .site-layout-content {
+    padding: 8px;
+  }
+
   .content {
     padding: 10px;
   }
