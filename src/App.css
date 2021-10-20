@@ -20,6 +20,10 @@
   height: 100%;
 }
 
+.ant-tabs-content-holder {
+  overflow: auto;
+}
+
 .header {
   height: 100%;
   display: flex;
@@ -50,4 +54,10 @@
 .connector-contetn {
   display: flex;
   align-items: center;
+}
+
+@media screen and (max-width: 480px) {
+  .content {
+    padding: 10px;
+  }
 }
