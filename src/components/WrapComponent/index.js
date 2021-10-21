@@ -67,6 +67,26 @@ const WrapComponent = (props) => {
         setSgbValue(parseInt(e.target.value))
     }
 
+    const addToken = async () => {
+        try {
+            await window.ethereum.request({
+                method: 'wallet_watchAsset',
+                params: {
+                  type: 'ERC20',
+                  options: {
+                    address: wNatContract.address,
+                    symbol: await wNatContract.symbol(),
+                    decimals: await wNatContract.decimals(),
+                    image: 'https://cloudflare-ipfs.com/ipfs/QmU5SnCqdoC8YzVnwZv4cE1Mz1Qscg2JzGuFV6wHvAnXiu',
+                  }
+                }
+            })
+        } catch (err) {
+            console.log(err);
+            notification.error({message: "Operation is failed.", duration: 5});
+        }
+    }
+
     return (
         <div className="wrap-token">
             {
@@ -75,9 +95,12 @@ const WrapComponent = (props) => {
             <Spin spinning={isLoading} tip={wrapStatus ? "Wrapping..." : "Unwrapping..."}>
                 <div className="operate-section">
                     <div className="switch-wrap">
-                        <span className={`switch-wrap-btn ${wrapStatus && "selected"}`} onClick={() => setWrapStatus(true)} >WRAP</span>
-                        &nbsp;/&nbsp;
-                        <span className={`switch-wrap-btn ${!wrapStatus && "selected"}`} onClick={() => setWrapStatus(false)}>UNWRAP</span>
+                        <div className="wrap-group">
+                            <span className={`switch-wrap-btn ${wrapStatus && "selected"}`} onClick={() => setWrapStatus(true)} >WRAP</span>
+                            &nbsp;/&nbsp;
+                            <span className={`switch-wrap-btn ${!wrapStatus && "selected"}`} onClick={() => setWrapStatus(false)}>UNWRAP</span>
+                        </div>
+                        <Button ghost type="primary"  size="small" shape="round" onClick={addToken}>Add WSGB token into MetaMask</Button>
                     </div>
                     <div className="wrap-from">
                         <div className="name-value">
